@@ -272,14 +272,18 @@ class Diffusion(object):
                     t_max = len(list(cali_ckpt.keys())) - 2
             else:
                 logger.info("Generating calibration data...")
-                cali_data = generate_cali_data_ddim(runnr=self,
-                                                    model=model,
-                                                    T= self.args.timesteps,
-                                                    c=1,
-                                                    batch_size=256,
-                                                    shape=(self.config.data.channels,
-                                                           self.config.data.image_size,
-                                                           self.config.data.image_size,))
+                if self.args.cali_data_path == None:
+                    cali_data = generate_cali_data_ddim(runnr=self,
+                                                        model=model,
+                                                        T= self.args.timesteps,
+                                                        c=1,
+                                                        batch_size=256,
+                                                        shape=(self.config.data.channels,
+                                                            self.config.data.image_size,
+                                                            self.config.data.image_size,))
+                    torch.save(cali_data, os.path.join(self.args.log_path, 'cali_data.pth'))
+                else:
+                    cali_data = torch.load(self.args.cali_data_path)
                 a_cali_data = cali_data
                 tmp = []
                 for i in range(0, self.args.timesteps, self.args.interval_length):

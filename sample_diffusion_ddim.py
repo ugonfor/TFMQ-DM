@@ -4,6 +4,7 @@ import logging
 import os
 from pytorch_lightning import seed_everything
 
+import sys
 import yaml
 
 from ddim.runners.diffusion import Diffusion
@@ -104,6 +105,15 @@ def get_parser():
         action='store_true',
         help='whether to use activation quantization'
     )
+
+    # 
+    parser.add_argument(
+        '--cali_data_path',
+        default=None,
+        type=str,
+        help='path to calibration dataset'
+    )
+    
     return parser
 
 
@@ -144,6 +154,7 @@ if __name__ == '__main__':
         ]
     )
     logger = logging.getLogger(__name__)
+    logger.info("args: %s", " ".join(sys.argv))
     logger.info(75 * "=")
     logger.info(f"Host {os.uname()[1]}")
     logger.info("logging to:")
@@ -160,12 +171,12 @@ if __name__ == '__main__':
     p.append(QMODE.QDIFF.value)
     args.q_mode = p
     args.fid = True
-    args.log_path = "test/"
+    args.log_path = logdir
     args.use_pretrained = True
     args.use_aq = args.use_aq
     args.asym = True
     args.running_stat = True
-    config.device = 'cuda0'
+    config.device = 'cuda:0'
     runner = Diffusion(args, config)
     runner.sample()
 
