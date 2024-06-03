@@ -336,6 +336,16 @@ def main():
     parser.add_argument('--dist-backend', default='nccl', type=str, help='')
     parser.add_argument('--rank', default=0, type=int, help='')
     parser.add_argument('--world_size', default=1, type=int, help='')
+
+
+    # calibration data configs
+    parser.add_argument(
+        "--cali_data_path",
+        type=str,
+        default="",
+        help="path to save the calibration data"
+    )
+    
     opt = parser.parse_args()
 
     if opt.laion400m:
@@ -418,15 +428,18 @@ def main():
                 sampler.model.model.iter = 0
         else:
             logger.info("Generating calibration data...")
-            cali_data = generate_cali_text_guided_data(model,
-                                                       sampler,
-                                                       T=opt.ddim_steps,
-                                                       c=1,
-                                                       batch_size=1,
-                                                       prompts=get_prompts(opt.data_path),
-                                                       shape=[opt.C, opt.H // opt.f, opt.W // opt.f],
-                                                       precision_scope=autocast if opt.precision=="autocast" else nullcontext)
-            torch.save(cali_data, "cali_data.pth")
+            if opt.cali_data_path != "":
+                cali_data = torch.load(opt.cali_data_path)
+            else:
+                cali_data = generate_cali_text_guided_data(model,
+                                                        sampler,
+                                                        T=opt.ddim_steps,
+                                                        c=1,
+                                                        batch_size=1,
+                                                        prompts=get_prompts(opt.data_path),
+                                                        shape=[opt.C, opt.H // opt.f, opt.W // opt.f],
+                                                        precision_scope=autocast if opt.precision=="autocast" else nullcontext)
+                torch.save(cali_data, "cali_data.pth")
             a_cali_data = cali_data
             w_cali_data = cali_data
             logger.info("Calibration data generated.")
