@@ -426,6 +426,7 @@ def main():
                                                        prompts=get_prompts(opt.data_path),
                                                        shape=[opt.C, opt.H // opt.f, opt.W // opt.f],
                                                        precision_scope=autocast if opt.precision=="autocast" else nullcontext)
+            torch.save(cali_data, "cali_data.pth")
             a_cali_data = cali_data
             w_cali_data = cali_data
             logger.info("Calibration data generated.")
@@ -504,7 +505,7 @@ def main():
         with open(opt.from_file, "r") as f:
             data = f.read().splitlines()
             data = list(chunk(data, batch_size))
-    if opt.data_path is not "":
+    if opt.data_path != "":
         data = prompts4eval(opt.data_path, batch_size)
         opt.n_iter = 1
     sample_path = os.path.join(outpath, "imags")

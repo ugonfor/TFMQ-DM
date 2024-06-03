@@ -497,6 +497,8 @@ if __name__ == "__main__":
             logger.info("Calibration data generated.")
             torch.cuda.empty_cache()
             setattr(model.model.diffusion_model, "split", True)
+
+            os.makedirs(opt.cali_save_path, exist_ok=True)
             if opt.multi_gpu:
                 kwargs = dict(iters=20000,
                               batch_size=32,
