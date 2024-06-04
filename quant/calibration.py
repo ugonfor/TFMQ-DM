@@ -13,6 +13,7 @@ from tqdm import trange
 from quant.reconstruction import block_reconstruction, layer_reconstruction, tib_reconstruction
 import linklink as dist
 import logging
+import os
 logger = logging.getLogger(__name__)
 
 
@@ -86,10 +87,11 @@ def cali_model(qnn: QuantModel,
     # --------- weight initialization -------- #
     cali_data = w_cali_data
     qnn.set_quant_state(use_wq = True, use_aq = False)
-    batch_size = min(8, cali_data[0].shape[0])
+    batch_size = min(6, cali_data[0].shape[0])
     inputs = (x[: batch_size].cuda() for x in cali_data) 
     qnn(*inputs)
     qnn.disable_out_quantization()
+    logger.info('weight initialization done.')
 
     # --------- weight quantization -------- #
     recon_model(qnn)
@@ -150,8 +152,9 @@ def cali_model(qnn: QuantModel,
                     temp['model.' + name + '.delta'] = module.cpu().state_dict()['delta']
                     temp['model.' + name + '.zero_point'] = module.cpu().state_dict()['zero_point']
             model_dict['act_{}'.format(time)] = temp
-        if path:
-            torch.save(model_dict, path)
+    
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    torch.save(model_dict, path)
     logger.info("Calibration done.")
     
     
