@@ -345,7 +345,7 @@ def main():
         default="",
         help="path to save the calibration data"
     )
-    
+
     opt = parser.parse_args()
 
     if opt.laion400m:
@@ -428,7 +428,7 @@ def main():
                 sampler.model.model.iter = 0
         else:
             logger.info("Generating calibration data...")
-            if opt.cali_data_path != "":
+            if os.path.exists(opt.cali_data_path):
                 cali_data = torch.load(opt.cali_data_path)
             else:
                 cali_data = generate_cali_text_guided_data(model,
@@ -439,7 +439,7 @@ def main():
                                                         prompts=get_prompts(opt.data_path),
                                                         shape=[opt.C, opt.H // opt.f, opt.W // opt.f],
                                                         precision_scope=autocast if opt.precision=="autocast" else nullcontext)
-                torch.save(cali_data, "cali_data.pth")
+                torch.save(cali_data, opt.cali_data_path)
             a_cali_data = cali_data
             w_cali_data = cali_data
             logger.info("Calibration data generated.")

@@ -1,8 +1,5 @@
---index-url https://download.pytorch.org/whl/nightly/cu121
---pre
+--index-url https://download.pytorch.org/whl/cu121
 torch==2.2.2
 torchvision==0.17.2
 torchaudio==2.2.2
-lmdb
-transformers==4.31.0
 # pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 --index-url https://download.pytorch.org/whl/cu121
